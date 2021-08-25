@@ -1,0 +1,56 @@
+provider "docker" {
+  host = "tcp://docker:XXX/"
+}
+//XXX is set a port number for security.
+//here docker deamon using the XXX port and running on a TCP socket.
+resource "docker_image" "nginx" {
+  name = "nginx:3.10-alpine"
+}
+//here it takes a docker image from the hub and the name of the image is alpine:3.10
+
+//here the container is defined and the container name is nginx-server.
+resource "docker_container" "nginx-server" {
+  name = "nginx-server"
+  image = "${docker_image.nginx.latest}"
+//fetches the latest alpine image created.
+  ports {
+    internal = 80
+  }
+  volumes {
+    container_path  = "/user/myfolder/nginx/html"
+    host_path = ""
+    read_only = true
+  }
+}
+
+============================================
+Now using cli;
+perform the follwoing commands:
+
+Terraform plan (shows you what are the changes i.e., here we created a container and a image)
+Terraform apply (the changes will result in configuring them)
+
+
+Also, now perform docker commands such as,
+
+docker ps (where u can see the created container)
+======================================================
+
+Next, In case if we want to expand or change the container, we can also increase the instances.
+
+resource "docker_container" "nginx-server" {
+  count = 4
+//here it increases the number of instances to 4.
+  name = "nginx-server-${count.index+1}"
+  image = "${docker_image.nginx.latest}"
+  ports {
+    internal = 80
+  }
+  volumes {
+    container_path  = "/user/myfolder/nginx/html"
+    host_path = ""
+    read_only = true
+  }
+}
+//here the container path shares the data between the container and the host.
+ so, give the host path as well.
